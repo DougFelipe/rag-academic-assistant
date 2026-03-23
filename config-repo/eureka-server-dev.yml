@@ -1,0 +1,19 @@
+# Eureka Server Development Profile Overrides
+# These settings override eureka-server.yml when profile=dev
+
+eureka:
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 15000
+
+logging:
+  level:
+    root: DEBUG
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

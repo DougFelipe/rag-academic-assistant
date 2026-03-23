@@ -1,0 +1,30 @@
+# Orchestrator Service - Local Profile
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+# Service URLs for Local
+services:
+  ai-service:
+    url: http://localhost:8082
+  function-service:
+    url: http://localhost:8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,refresh
+  tracing:
+    enabled: false
+
+logging:
+  level:
+    "[br.ufrn.distribuida.orchestrator]": DEBUG

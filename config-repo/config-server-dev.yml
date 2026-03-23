@@ -1,0 +1,14 @@
+# Config Server Development Profile Overrides
+# These settings override config-server.yml when profile=dev
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.cloud.config: TRACE
+    org.springframework.cloud.config.server: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

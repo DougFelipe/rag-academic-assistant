@@ -1,0 +1,189 @@
+# =================================================
+# Environment & Secrets
+# =================================================
+.env
+.env.example
+.env.local
+.env.*.local
+.env.production.local
+.env.test.local
+.env.development.local
+*.pem
+*.key
+*.pfx
+*.p12
+secrets/
+credentials/
+
+# =================================================
+# IDE & Editor
+# =================================================
+# VSCode
+.vscode/
+*.code-workspace
+launch.json
+settings.json
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+*.launch
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+.vim/
+*.swp
+*.swo
+*~
+.netrwhist
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# =================================================
+# Build & Dependencies
+# =================================================
+# Maven
+target/
+.m2/
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+.flattened-pom.xml
+
+# Node.js / npm / yarn
+node_modules/
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python / venv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# =================================================
+# Runtime & Logs
+# =================================================
+logs/
+*.log
+*.log.*
+.log
+
+# =================================================
+# Docker & Containers
+# =================================================
+docker-compose.override.yml
+.docker/
+docker-volumes/
+mysql-data/
+postgres-data/
+redis-data/
+rabbitmq-data/
+
+# =================================================
+# Spring Boot & Java
+# =================================================
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+mvnw.cmd
+mvnw
+
+# =================================================
+# JMeter & Testing
+# =================================================
+jmeter/results/
+jmeter/*.jtl
+jmeter/*.csv
+.test-results/
+test-output/
+
+# =================================================
+# Cache & Temp Files
+# =================================================
+.gradle/
+.cache/
+*.cache
+tmp/
+temp/
+.tmp/
+
+# =================================================
+# System & Generated
+# =================================================
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+*.swo
+*~
+
+# =================================================
+# Claude Code & Planning (Development Only)
+# =================================================
+.claude/
+.planning/
+MEMORY.md
+*.claude-session
+
+# =================================================
+# Additional Exclusions
+# =================================================
+*.pid
+.checkstyle
+.pmd
+.spotbugs

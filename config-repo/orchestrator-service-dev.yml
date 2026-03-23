@@ -1,0 +1,29 @@
+# Orchestrator Service Development Profile Overrides
+
+logging:
+  level:
+    root: DEBUG
+    br.ufrn.distribuida.orchestrator: TRACE
+    feign: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: FULL
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiService:
+        slidingWindowSize: 5
+        waitDurationInOpenState: 5s
+      functionService:
+        slidingWindowSize: 5
+        waitDurationInOpenState: 5s

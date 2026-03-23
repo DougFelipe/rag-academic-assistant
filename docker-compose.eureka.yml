@@ -1,0 +1,36 @@
+services:
+  # =====================================
+  # Eureka Server - Service Discovery
+  # =====================================
+  eureka-server:
+    container_name: distribuida3-eureka-server
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    image: distribuida3/eureka-server:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    labels:
+      - "service.type=infrastructure"
+      - "service.name=eureka-server"
+
+networks:
+  microservices-network:
+    name: distribuida3-network
+    external: true

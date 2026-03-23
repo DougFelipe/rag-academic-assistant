@@ -1,0 +1,44 @@
+# Config Server Configuration
+
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: file://${user.dir}/../config-repo
+          clone-on-start: true
+          default-label: main
+        # Alternative: Use native file system
+        native:
+          search-locations: classpath:/config,file:../config-repo
+      fail-fast: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,refresh
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG

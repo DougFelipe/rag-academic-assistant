@@ -1,0 +1,65 @@
+# AI Service Local Development Configuration (Ollama Only)
+
+server:
+  port: 8082
+
+spring:
+  ai:
+    enabled: true
+    
+    # OpenAI Disabled (dummy key to prevent validation)
+    openai:
+      api-key: sk-dummy-key-local-only
+      chat:
+        enabled: false
+    
+    # Ollama Configuration (Local LLM)
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        enabled: true
+        options:
+          model: ${OLLAMA_MODEL:minimax-m2:cloud}
+          temperature: 0.7
+          max-tokens: 1000
+
+# Resilience4j for AI Service (Relaxed for local dev)
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiClient:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 10s
+        slow-call-duration-threshold: 30s
+        slow-call-rate-threshold: 60
+        permitted-number-of-calls-in-half-open-state: 3
+  
+  retry:
+    instances:
+      aiClient:
+        max-attempts: 2
+        wait-duration: 2s
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+
+# Logging for local debugging
+logging:
+  level:
+    "[br.ufrn.distribuida.ai]": DEBUG
+    "[org.springframework.ai]": DEBUG
+    "[org.springframework.cloud]": INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,refresh
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    enabled: false

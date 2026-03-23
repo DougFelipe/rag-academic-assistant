@@ -1,0 +1,40 @@
+# Gateway Service Docker Profile
+# Used when running in Docker containers
+
+# Docker-specific logging
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: INFO
+    reactor.netty: INFO
+
+# Health check configuration for Docker
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
+server:
+  shutdown: graceful
+
+spring:
+  config:
+    import: "optional:configserver:http://config-server:8888"
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    hostname: gateway-service

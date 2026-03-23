@@ -1,0 +1,181 @@
+services:
+  # =====================================
+  # Gateway Service
+  # =====================================
+  gateway-service:
+    container_name: distribuida3-gateway-service
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    image: distribuida3/gateway-service:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    labels:
+      - "service.type=gateway"
+      - "service.name=gateway-service"
+
+  # =====================================
+  # AI Service
+  # =====================================
+  ai-service:
+    container_name: distribuida3-ai-service
+    build:
+      context: .
+      dockerfile: ai-service/Dockerfile
+    image: distribuida3/ai-service:latest
+    ports:
+      - "8082:8082"
+    networks:
+      - microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - AI_ENABLED=true
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/api/ai/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    labels:
+      - "service.type=business"
+      - "service.name=ai-service"
+
+  # =====================================
+  # Orchestrator Service
+  # =====================================
+  orchestrator-service:
+    container_name: distribuida3-orchestrator-service
+    build:
+      context: .
+      dockerfile: orchestrator-service/Dockerfile
+    image: distribuida3/orchestrator-service:latest
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    labels:
+      - "service.type=business"
+      - "service.name=orchestrator-service"
+
+  # =====================================
+  # Function Service
+  # =====================================
+  function-service:
+    container_name: distribuida3-function-service
+    build:
+      context: .
+      dockerfile: function-service/Dockerfile
+    image: distribuida3/function-service:latest
+    ports:
+      - "8083:8083"
+    networks:
+      - microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    labels:
+      - "service.type=business"
+      - "service.name=function-service"
+
+  # =====================================
+  # MCP External Service
+  # =====================================
+  mcp-external-service:
+    container_name: distribuida3-mcp-external-service
+    build:
+      context: .
+      dockerfile: mcp-external-service/Dockerfile
+    image: distribuida3/mcp-external-service:latest
+    ports:
+      - "8084:8084"
+    networks:
+      - microservices-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=mcp-external-service
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    labels:
+      - "service.type=integration"
+      - "service.name=mcp-external-service"
+
+networks:
+  microservices-network:
+    name: distribuida3-network
+    external: true

@@ -1,0 +1,13 @@
+# Docker-specific overrides for all services
+# This file is activated when using the 'docker' profile
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+    base-url: http://zipkin:9411
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka

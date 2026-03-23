@@ -1,0 +1,27 @@
+# Gateway Service Development Profile Overrides
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: DEBUG
+    br.ufrn.distribuida.gateway: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      orchestratorCircuitBreaker:
+        slidingWindowSize: 5
+        waitDurationInOpenState: 5s
+      aiCircuitBreaker:
+        slidingWindowSize: 5
+        waitDurationInOpenState: 5s
+      functionCircuitBreaker:
+        slidingWindowSize: 5
+        waitDurationInOpenState: 5s

@@ -1,0 +1,91 @@
+# Orchestrator Service Configuration
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: orchestrator-service
+
+# Feign Client Configuration
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: FULL
+      ai-service:
+        connectTimeout: 5000
+        readTimeout: 12000  # ✅ OTIMIZADO: 12s (vs 30s anterior)
+      function-service:
+        connectTimeout: 5000
+        readTimeout: 20000
+  circuitbreaker:
+    enabled: true
+    alphanumeric-ids:
+      enabled: true
+
+# Resilience4j Configuration for Orchestrator
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 15s
+        failureRateThreshold: 40  
+        slowCallDurationThreshold: 11000  
+        slowCallRateThreshold: 50  
+      functionService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+
+  retry:
+    instances:
+      aiService:
+        maxAttempts: 3
+        waitDuration: 2000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      functionService:
+        maxAttempts: 2
+        waitDuration: 1000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+  bulkhead:
+    instances:
+      aiService:
+        maxConcurrentCalls: 10
+        maxWaitDuration: 1000
+      functionService:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 500
+
+  timelimiter:
+    instances:
+      aiService:
+        timeoutDuration: 13s  # ✅ OTIMIZADO: 13s (vs 30s anterior)
+      functionService:
+        timeoutDuration: 20s
+
+# OpenAPI Documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  show-actuator: true
+
+logging:
+  level:
+    br.ufrn.distribuida.orchestrator: DEBUG
+    feign: DEBUG

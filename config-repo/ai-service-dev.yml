@@ -1,0 +1,83 @@
+# AI Service Development Profile Overrides
+
+logging:
+  level:
+    root: DEBUG
+    br.ufrn.distribuida.ai: TRACE
+    org.springframework.ai: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+# Spring AI Configuration
+spring:
+  ai:
+    enabled: true  # Set to false to disable AI features
+    
+    # OpenAI Configuration (Primary)
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-dev-placeholder}
+      base-url: https://api.openai.com
+      chat:
+        enabled: true
+        options:
+          model: gpt-4-turbo-preview
+          temperature: 0.7
+          max-tokens: 1000
+          top-p: 1.0
+          frequency-penalty: 0.0
+          presence-penalty: 0.0
+    
+    # Ollama Configuration (Local alternative for dev)
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        enabled: false  # Set to true to use Ollama instead of OpenAI
+        options:
+          model: llama2
+          temperature: 0.7
+          num-predict: 500
+
+# Resilience4j Configuration for AI Client
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiClient:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        minimum-number-of-calls: 5
+        sliding-window-type: COUNT_BASED
+  
+  retry:
+    instances:
+      aiClient:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        exponential-max-wait-duration: 5s
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+          - java.util.concurrent.TimeoutException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+          - jakarta.validation.ValidationException
+  
+  timelimiter:
+    instances:
+      aiClient:
+        timeout-duration: 30s
+        cancel-running-future: true
+
+# MCP External Configuration (Mock for demonstration)
+mcp:
+  external:
+    enabled: false  # Set to true to enable MCP External mock
+    provider: mock  # mock | github | newsapi
+

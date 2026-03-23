@@ -1,0 +1,141 @@
+# Global Configuration for All Services
+# This file provides default configurations that apply to all microservices
+
+spring:
+  application:
+    name: default-application
+  
+  cloud:
+    config:
+      enabled: true
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 2000
+        multiplier: 1.1
+
+# Eureka Client Configuration (Common to all services except eureka-server)
+# Default zone sera definido por profile (local ou docker)
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 30
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+      discovery:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  health:
+    circuitbreakers:
+      enabled: true
+    ratelimiters:
+      enabled: true
+  
+  # Distributed Tracing - ENABLED (with explicit zipkin-reporter dependency)
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    propagation:
+      type: B3  # Brave uses B3 format for trace propagation
+      produce: B3,W3C  # Produce both B3 and W3C trace context headers
+      consume: B3,W3C  # Consume both B3 and W3C trace context headers
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_BASE_URL:http://localhost:9411}/api/v2/spans
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    br.ufrn.distribuida: DEBUG
+    org.springframework.cloud: DEBUG
+    org.springframework.web: INFO
+    io.micrometer.tracing: DEBUG  # Enable tracing propagation logs
+    brave.propagation: DEBUG  # Enable B3 propagation logs
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Resilience4j Default Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+        # ignoreExceptions:
+          # - br.ufrn.distribuida.common.exception.BusinessException  # REMOVED
+
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 1000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+        # ignoreExceptions:
+          # - br.ufrn.distribuida.common.exception.BusinessException  # REMOVED
+
+  ratelimiter:
+    configs:
+      default:
+        registerHealthIndicator: true
+        limitForPeriod: 50
+        limitRefreshPeriod: 1s
+        timeoutDuration: 5s
+
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 25
+        maxWaitDuration: 0
+
+# Server Configuration
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false

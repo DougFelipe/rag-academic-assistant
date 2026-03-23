@@ -1,0 +1,80 @@
+# Gateway Service - Local Profile
+# Centralized configuration for local development
+
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: ai-service
+          uri: lb://ai-service
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: aiServiceCircuitBreaker
+                fallbackUri: forward:/fallback/ai
+        
+        - id: function-service
+          uri: lb://function-service
+          predicates:
+            - Path=/api/functions/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: functionServiceCircuitBreaker
+                fallbackUri: forward:/fallback/function
+        
+        - id: orchestrator-service
+          uri: lb://orchestrator-service
+          predicates:
+            - Path=/api/orchestrator/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orchestratorServiceCircuitBreaker
+                fallbackUri: forward:/fallback/orchestrator
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+      functionServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+      orchestratorServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway,refresh
+  tracing:
+    enabled: false
+
+logging:
+  level:
+    "[org.springframework.cloud.gateway]": DEBUG
+    "[reactor.netty]": INFO

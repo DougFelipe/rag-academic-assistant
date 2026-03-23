@@ -1,0 +1,48 @@
+# AI Service - Docker Profile (Minimal)
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
+  instance:
+    hostname: ai-service
+
+spring:
+  ai:
+    enabled: true
+    ollama:
+      base-url: http://host.docker.internal:11434
+      chat:
+        enabled: true
+        options:
+          model: minimax-m2:cloud
+          temperature: 0.7
+    openai:
+      api-key: sk-proj-fake-key-12345678901234567890123456789012345678901234567890  
+      base-url: http://localhost:9999 
+      chat:
+        enabled: false
+        options:
+          model: gpt-3.5-turbo  
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  level:
+    "[br.ufrn.distribuida.ai]": INFO
+    "[io.micrometer.tracing]": DEBUG
+    "[brave]": DEBUG

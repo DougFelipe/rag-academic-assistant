@@ -1,0 +1,15 @@
+﻿# gateway-service Bootstrap Configuration
+# All runtime configuration is centralized in config-repo
+
+spring:
+  application:
+    name: gateway-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  cloud:
+    config:
+      enabled: true
+      fail-fast: false
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}

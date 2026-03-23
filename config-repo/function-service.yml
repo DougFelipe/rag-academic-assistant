@@ -1,0 +1,83 @@
+# Function Service Configuration
+
+server:
+  port: 8083
+
+spring:
+  application:
+    name: function-service
+  
+  # Spring Cloud Function Configuration
+  cloud:
+    function:
+      definition: preprocessQuestion;enrichAnswer
+
+# Function Service Specific Configuration
+function:
+  # Execution configuration
+  execution:
+    timeout-seconds: 30
+    max-retries: 2
+    max-concurrent-executions: 50
+
+  # Resource limits
+  resources:
+    max-memory-mb: 512
+    max-cpu-percent: 80
+
+  # Supported function types
+  supported-types:
+    - javascript
+    - python
+    - java
+    - groovy
+
+  # Security settings
+  security:
+    enable-sandbox: true
+    max-execution-time-ms: 30000
+    allowed-packages:
+      - java.lang
+      - java.util
+      - java.math
+
+# Resilience4j for Function Service
+resilience4j:
+  circuitbreaker:
+    instances:
+      functionExecution:
+        registerHealthIndicator: true
+        slidingWindowSize: 15
+        minimumNumberOfCalls: 8
+        failureRateThreshold: 55
+        waitDurationInOpenState: 12s
+
+  ratelimiter:
+    instances:
+      functionApi:
+        limitForPeriod: 100
+        limitRefreshPeriod: 1s
+        timeoutDuration: 3s
+
+  bulkhead:
+    instances:
+      functionExecution:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 5s
+
+  timelimiter:
+    instances:
+      functionExecution:
+        timeoutDuration: 30s
+
+# OpenAPI Documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+logging:
+  level:
+    br.ufrn.distribuida.function: DEBUG

@@ -1,0 +1,99 @@
+# Gateway Service - Docker Profile
+# Centralized configuration for Docker deployment
+
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        # AI Service Routes
+        - id: ai-service
+          uri: lb://ai-service
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: aiServiceCircuitBreaker
+        
+        # Function Service Routes
+        - id: function-service
+          uri: lb://function-service
+          predicates:
+            - Path=/api/functions/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: functionServiceCircuitBreaker
+        
+        # Orchestrator Service Routes
+        - id: orchestrator-service
+          uri: lb://orchestrator-service
+          predicates:
+            - Path=/api/orchestrator/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orchestratorServiceCircuitBreaker
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: gateway-service
+
+# Resilience4j Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+      functionServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+      orchestratorServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+  timelimiter:
+    instances:
+      aiServiceCircuitBreaker:
+        timeout-duration: 90s
+      functionServiceCircuitBreaker:
+        timeout-duration: 90s
+      orchestratorServiceCircuitBreaker:
+        timeout-duration: 90s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway,refresh
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  level:
+    "[org.springframework.cloud.gateway]": INFO
+    "[reactor.netty]": INFO
+    "[io.micrometer.tracing]": DEBUG
+    "[brave]": DEBUG

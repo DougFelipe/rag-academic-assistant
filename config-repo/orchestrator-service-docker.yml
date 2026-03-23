@@ -1,0 +1,65 @@
+# Orchestrator Service - Docker Profile
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: orchestrator-service
+
+# Service URLs for Docker
+services:
+  ai-service:
+    url: http://ai-service:8082
+  function-service:
+    url: http://function-service:8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,refresh
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+# Enable Feign observability for distributed tracing
+spring:
+  cloud:
+    openfeign:
+      micrometer:
+        enabled: true
+      client:
+        config:
+          default:
+            logger-level: FULL
+
+logging:
+  level:
+    "[br.ufrn.distribuida.orchestrator]": INFO
+    "[io.micrometer.tracing]": DEBUG
+    "[brave]": DEBUG
+    "[feign]": DEBUG
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiServiceCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    instances:
+      aiServiceCircuitBreaker:
+        timeout-duration: 60s

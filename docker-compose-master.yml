@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Import all modular configurations
+  config-server:
+    extends:
+      file: docker-compose.config.yml
+      service: config-server
+
+  eureka-server:
+    extends:
+      file: docker-compose.eureka.yml
+      service: eureka-server
+
+  gateway-service:
+    extends:
+      file: docker-compose.services.yml
+      service: gateway-service
+
+  ai-service:
+    extends:
+      file: docker-compose.services.yml
+      service: ai-service
+
+  orchestrator-service:
+    extends:
+      file: docker-compose.services.yml
+      service: orchestrator-service
+
+  function-service:
+    extends:
+      file: docker-compose.services.yml
+      service: function-service
+
+  mcp-external-service:
+    extends:
+      file: docker-compose.services.yml
+      service: mcp-external-service
+
+  prometheus:
+    extends:
+      file: docker-compose.observability.yml
+      service: prometheus
+
+  grafana:
+    extends:
+      file: docker-compose.observability.yml
+      service: grafana
+
+  zipkin:
+    extends:
+      file: docker-compose.observability.yml
+      service: zipkin
+
+networks:
+  microservices-network:
+    name: distribuida3-network
+    driver: bridge
+
+volumes:
+  prometheus-data:
+    name: distribuida3-prometheus-data
+  grafana-data:
+    name: distribuida3-grafana-data

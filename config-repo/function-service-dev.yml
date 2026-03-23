@@ -1,0 +1,26 @@
+# Function Service Development Profile Overrides
+
+logging:
+  level:
+    root: DEBUG
+    br.ufrn.distribuida.function: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+function:
+  security:
+    enable-sandbox: false  # Disable sandbox in dev for easier testing
+    max-execution-time-ms: 60000  # Longer timeout in dev
+  execution:
+    max-concurrent-executions: 10  # Lower limit in dev
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      functionExecution:
+        slidingWindowSize: 8
+        waitDurationInOpenState: 5s

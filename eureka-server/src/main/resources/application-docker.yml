@@ -1,0 +1,42 @@
+# Eureka Server Docker Profile
+# Used when running in Docker containers
+
+eureka:
+  instance:
+    hostname: eureka-server  # Docker service name
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+  server:
+    enable-self-preservation: true
+
+# Docker-specific logging
+logging:
+  level:
+    root: INFO
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO
+
+# Health check configuration for Docker
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
+server:
+  shutdown: graceful
+
+spring:
+  config:
+    import: "optional:configserver:http://config-server:8888"
