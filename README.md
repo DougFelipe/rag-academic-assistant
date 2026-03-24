@@ -1,9 +1,5 @@
 # Distributed AI-Powered Question Answering System with RAG over Academic Profiles
 
-**Institution:** Universidade Federal do Rio Grande do Norte (UFRN)
-**Package namespace:** `br.ufrn.distribuida`
-**Analysis date:** 2026-03-19
-
 ---
 
 ## Abstract
